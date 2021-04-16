@@ -1,5 +1,6 @@
 package com.example.bookshelf;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -27,6 +28,8 @@ public class ControlFragment extends Fragment {
     Button playButton, pauseButton, stopButton;
     SeekBar seekBar;
 
+    ControlFragmentInterface controlFragmentInterface;
+
     public ControlFragment() {
         // Required empty public constructor
     }
@@ -40,11 +43,21 @@ public class ControlFragment extends Fragment {
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        controlFragmentInterface = (ControlFragmentInterface) context;
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             book = getArguments().getParcelable(ARG_CONTROL);
         }
+    }
+
+    public void setNowPlaying(Book book) {
+        controlTextView.setText("Now Playing: " + book.getTitle());
     }
 
     @Override
@@ -58,6 +71,20 @@ public class ControlFragment extends Fragment {
         stopButton = view.findViewById(R.id.stopButton);
         seekBar = view.findViewById(R.id.seekBar);
 
+        playButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                controlFragmentInterface.onPressPlayButton();
+            }
+        });
+
         return view;
+    }
+
+    interface ControlFragmentInterface {
+        void onPressPlayButton();
+        void onPressPauseButton();
+        void onPressStopButton();
+        void onSeekTo(int position);
     }
 }

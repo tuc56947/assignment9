@@ -5,12 +5,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
 import android.view.View;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity implements BookListFragment.BookSelectedInterface {
+import edu.temple.audiobookplayer.AudiobookService;
+
+public class MainActivity extends AppCompatActivity implements BookListFragment.BookSelectedInterface, ControlFragment.ControlFragmentInterface {
 
     FragmentManager fm;
 
@@ -20,6 +26,24 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
 
     ControlFragment controlFragment;
     Book bookPlaying;
+
+    AudiobookService.MediaControlBinder mediaControlBinder;
+    Handler mediaControlHandler;
+
+    ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mediaControlBinder = (AudiobookService.MediaControlBinder) service;
+            mediaControlBinder.setProgressHandler(mediaControlHandler);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+        }
+    };
+
+    Intent bindIntent;
 
     private final String TAG_BOOKLIST = "booklist", TAG_BOOKDETAILS = "bookdetails", TAG_CONTROLL = "controll";
     private final String KEY_SELECTED_BOOK = "selectedBook";
@@ -96,6 +120,9 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
                     .commit();
         }
 
+        bindIntent = new Intent(this, AudiobookService.class);
+        bindService(bindIntent, serviceConnection, BIND_AUTO_CREATE);
+
     }
 
     @Override
@@ -156,5 +183,33 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             }
             showNewBooks();
         }
+    }
+
+    //For controller interface
+    @Override
+    public void onPressPlayButton() {
+        if(selectedBook == null) return;
+
+        bookPlaying = selectedBook;
+
+        mediaControlBinder.stop();
+        mediaControlBinder.play(bookPlaying.getId());
+        controlFragment.setNowPlaying(bookPlaying);
+
+    }
+
+    @Override
+    public void onPressPauseButton() {
+
+    }
+
+    @Override
+    public void onPressStopButton() {
+
+    }
+
+    @Override
+    public void onSeekTo(int position) {
+
     }
 }
