@@ -78,6 +78,19 @@ public class ControlFragment extends Fragment {
             }
         });
 
+        pauseButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                controlFragmentInterface.onPressPauseButton();
+            }
+        });
+
+        stopButton.setOnClickListener((new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                controlFragmentInterface.onPressStopButton();
+            }
+        }));
         return view;
     }
 

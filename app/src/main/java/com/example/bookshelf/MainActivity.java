@@ -200,11 +200,14 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
 
     @Override
     public void onPressPauseButton() {
-
+        mediaControlBinder.pause();
     }
 
     @Override
     public void onPressStopButton() {
+        mediaControlBinder.stop();
+        //bookPlaying = null;
+        //controlFragment.setNowPlaying(null);
 
     }
 
