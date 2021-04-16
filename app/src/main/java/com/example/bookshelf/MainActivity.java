@@ -18,7 +18,10 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     BookDetailsFragment bookDetailsFragment;
     Book selectedBook;
 
-    private final String TAG_BOOKLIST = "booklist", TAG_BOOKDETAILS = "bookdetails";
+    ControlFragment controlFragment;
+    Book bookPlaying;
+
+    private final String TAG_BOOKLIST = "booklist", TAG_BOOKDETAILS = "bookdetails", TAG_CONTROLL = "controll";
     private final String KEY_SELECTED_BOOK = "selectedBook";
     private final String KEY_BOOKLIST = "searchedook";
     private final int BOOK_SEARCH_REQUEST_CODE = 123;
@@ -81,6 +84,15 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
             fm.beginTransaction()
                     .replace(R.id.container_1, bookDetailsFragment, TAG_BOOKDETAILS)
                     .addToBackStack(null)
+                    .commit();
+        }
+
+        //Code for controller
+        controlFragment = ControlFragment.newInstance(bookPlaying);
+
+        if (!(fm.findFragmentById(R.id.container_control) instanceof ControlFragment)){
+            fm.beginTransaction()
+                    .replace(R.id.container_control, controlFragment, TAG_CONTROLL)
                     .commit();
         }
 
