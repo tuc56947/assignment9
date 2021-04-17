@@ -70,6 +70,7 @@ public class ControlFragment extends Fragment {
     public void update() {
         controlTextView.setText(setControlTextView());
         this.seekBar.setProgress(getScaledProgress());
+        System.out.println("scaled progress: " + getScaledProgress());
     }
 
     private String setControlTextView(){
@@ -80,9 +81,10 @@ public class ControlFragment extends Fragment {
     }
 
     private int getScaledProgress(){
-        if(book == null)
+        if(this.book == null)
             return 0;
-        else return (int) ((double)progress / (double)book.getDuration())*100;
+        else
+            return (int) (((double)progress / (double)book.getDuration())*100);
     }
 
     @Override
