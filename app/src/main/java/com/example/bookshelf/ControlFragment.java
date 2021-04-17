@@ -120,7 +120,9 @@ public class ControlFragment extends Fragment {
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                controlFragmentInterface.onSeekTo(progress);
+                if(fromUser) {
+                    controlFragmentInterface.onSeekTo(progress);
+                }
             }
 
             @Override

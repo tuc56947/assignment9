@@ -51,9 +51,11 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         public boolean handleMessage(@NonNull Message msg) {
             AudiobookService.BookProgress progress = ((AudiobookService.BookProgress) msg.obj);
             try {
+                System.out.println("CurrentProgress :" + currentProgress);
                 currentProgress = progress.getProgress();
                 controlFragment.updateProgress(progress.getProgress());
                 controlFragment.update();
+                System.out.println("CurrentProgress :" + currentProgress);
             } catch (Exception e) {
                 System.out.println(e);
             }
@@ -243,6 +245,6 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     @Override
     public void onSeekTo(int position) {
         mediaControlBinder.seekTo((int) ((double)position * bookPlaying.getDuration() / 100));
-        System.out.println((int) ((double)position * bookPlaying.getDuration() / 100));
+        System.out.println("seekto : " + (int) ((double)position * bookPlaying.getDuration() / 100));
     }
 }
