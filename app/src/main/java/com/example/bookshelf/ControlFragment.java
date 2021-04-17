@@ -20,9 +20,11 @@ import android.widget.TextView;
 public class ControlFragment extends Fragment {
 
     private static final String ARG_CONTROL = "param1";
+    private static final String ARG_PROGRESS = "param2";
 
     // TODO: Rename and change types of parameters
     private Book book;
+    private int progress;
 
     TextView controlTextView;
     Button playButton, pauseButton, stopButton;
@@ -34,10 +36,11 @@ public class ControlFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static ControlFragment newInstance(Book book) {
+    public static ControlFragment newInstance(Book book, int progress) {
         ControlFragment fragment = new ControlFragment();
         Bundle args = new Bundle();
         args.putParcelable(ARG_CONTROL, book);
+        args.putInt(ARG_PROGRESS, progress);
         fragment.setArguments(args);
         return fragment;
     }
@@ -57,7 +60,29 @@ public class ControlFragment extends Fragment {
     }
 
     public void setNowPlaying(Book book) {
-        controlTextView.setText("Now Playing: " + book.getTitle());
+        this.book = book;
+    }
+
+    public void updateProgress(int progress) {
+        this.progress = progress;
+    }
+
+    public void update() {
+        controlTextView.setText(setControlTextView());
+        this.seekBar.setProgress(getScaledProgress());
+    }
+
+    private String setControlTextView(){
+        if (this.book == null)
+            return "Choose a book";
+        else
+            return "Now Playing: " + this.book.getTitle();
+    }
+
+    private int getScaledProgress(){
+        if(book == null)
+            return 0;
+        else return (int) ((double)progress / (double)book.getDuration())*100;
     }
 
     @Override
@@ -91,6 +116,23 @@ public class ControlFragment extends Fragment {
                 controlFragmentInterface.onPressStopButton();
             }
         }));
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                controlFragmentInterface.onSeekTo(progress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
         return view;
     }
 

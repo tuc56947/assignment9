@@ -1,5 +1,6 @@
 package com.example.bookshelf;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -11,6 +12,7 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.view.View;
 import android.widget.Toast;
 
@@ -28,13 +30,14 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     Book bookPlaying;
 
     AudiobookService.MediaControlBinder mediaControlBinder;
-    Handler mediaControlHandler;
+
+    int currentProgress = 0;
 
     ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             mediaControlBinder = (AudiobookService.MediaControlBinder) service;
-            mediaControlBinder.setProgressHandler(mediaControlHandler);
+            mediaControlBinder.setProgressHandler(playerProgressHandler);
         }
 
         @Override
@@ -43,11 +46,28 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         }
     };
 
+    Handler playerProgressHandler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(@NonNull Message msg) {
+            AudiobookService.BookProgress progress = ((AudiobookService.BookProgress) msg.obj);
+            try {
+                currentProgress = progress.getProgress();
+                controlFragment.updateProgress(progress.getProgress());
+                controlFragment.update();
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+            return true;
+        }
+    });
+
     Intent bindIntent;
 
-    private final String TAG_BOOKLIST = "booklist", TAG_BOOKDETAILS = "bookdetails", TAG_CONTROLL = "controll";
+    private final String TAG_BOOKLIST = "booklist", TAG_BOOKDETAILS = "bookdetails", TAG_CONTROLL = "control";
     private final String KEY_SELECTED_BOOK = "selectedBook";
     private final String KEY_BOOKLIST = "searchedook";
+    private final String KEY_PLAYING_BOOK = "bookPlaying";
+    private final String KEY_PROGRESS = "currentProgress";
     private final int BOOK_SEARCH_REQUEST_CODE = 123;
 
     BookList bookList;
@@ -70,6 +90,10 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
 
             // Fetch previously searched books if one was previously retrieved
             bookList = savedInstanceState.getParcelable(KEY_BOOKLIST);
+
+            // Fetch book playing if there was one
+            bookPlaying = savedInstanceState.getParcelable(KEY_PLAYING_BOOK);
+            currentProgress = savedInstanceState.getInt(KEY_PROGRESS);
         }else {
             // Create empty booklist if
             bookList = new BookList();
@@ -112,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         }
 
         //Code for controller
-        controlFragment = ControlFragment.newInstance(bookPlaying);
+        controlFragment = ControlFragment.newInstance(bookPlaying, currentProgress);
 
         if (!(fm.findFragmentById(R.id.container_control) instanceof ControlFragment)){
             fm.beginTransaction()
@@ -162,6 +186,8 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         super.onSaveInstanceState(outState);
         outState.putParcelable(KEY_SELECTED_BOOK, selectedBook);
         outState.putParcelable(KEY_BOOKLIST, bookList);
+        outState.putParcelable(KEY_PLAYING_BOOK, bookPlaying);
+        outState.putInt(KEY_PROGRESS, currentProgress);
     }
 
     @Override
@@ -195,6 +221,7 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
         mediaControlBinder.stop();
         mediaControlBinder.play(bookPlaying.getId());
         controlFragment.setNowPlaying(bookPlaying);
+        controlFragment.update();
 
     }
 
@@ -206,13 +233,16 @@ public class MainActivity extends AppCompatActivity implements BookListFragment.
     @Override
     public void onPressStopButton() {
         mediaControlBinder.stop();
-        //bookPlaying = null;
-        //controlFragment.setNowPlaying(null);
+        currentProgress = 0;
+        controlFragment.updateProgress(0);
+        controlFragment.setNowPlaying(null);
+        controlFragment.update();
 
     }
 
     @Override
     public void onSeekTo(int position) {
-
+        mediaControlBinder.seekTo((int) ((double)position * bookPlaying.getDuration() / 100));
+        System.out.println((int) ((double)position * bookPlaying.getDuration() / 100));
     }
 }
