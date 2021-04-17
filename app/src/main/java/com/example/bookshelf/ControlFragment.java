@@ -74,9 +74,9 @@ public class ControlFragment extends Fragment {
 
     private String setControlTextView(){
         if (this.book == null)
-            return "Choose a book";
+            return getString(R.string.control_no_book);
         else
-            return "Now Playing: " + this.book.getTitle();
+            return getString(R.string.control_book_prefix) + this.book.getTitle();
     }
 
     private int getScaledProgress(){
@@ -95,6 +95,8 @@ public class ControlFragment extends Fragment {
         pauseButton = view.findViewById(R.id.pauseButton);
         stopButton = view.findViewById(R.id.stopButton);
         seekBar = view.findViewById(R.id.seekBar);
+
+        controlTextView.setText(getString(R.string.control_no_book));
 
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override

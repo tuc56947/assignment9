@@ -7,4 +7,11 @@
     <string name="error_no_results">No books matched your search</string>
     <string name="form_search">Search</string>
     <string name="form_cancel">Cancel</string>
+
+    <string name="control_play">Play</string>
+    <string name="control_pause">Pause</string>
+    <string name="control_stop">Stop</string>
+
+    <string name="control_no_book">Choose a book</string>
+    <string name="control_book_prefix">Now Playing: </string>
 </resources>
